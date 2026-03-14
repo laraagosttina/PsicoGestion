@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>PsicoGestión</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@500&display=swap');
+:root{
+  --bg:#fdf0f3;--bg2:#fff8f9;--bg3:#fae4ea;
+  --text:#1a1a1a;--text2:#6b6b6b;--text3:#aaaaaa;
+  --border:#f0c8d0;--border2:#e8aab6;
+  --blue:#185FA5;--blue-bg:#E6F1FB;--blue-text:#0C447C;
+  --green-bg:#EAF3DE;--green-text:#3B6D11;
+  --amber-bg:#FAEEDA;--amber-text:#854F0B;
+  --red-bg:#FCEBEB;--red-text:#A32D2D;
+  --purple-bg:#EEEDFE;--purple-text:#534AB7;
+  --success:#3B6D11;--danger:#A32D2D;
+  --radius:10px;--radius-lg:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);height:100vh;overflow:hidden;font-size:15px}
+.login-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;padding:2rem;text-align:center;background:var(--bg)}
+.login-logo{font-family:'Playfair Display',serif;font-size:38px;font-weight:500;margin-bottom:8px}
+.login-sub{font-size:15px;color:var(--text2);margin-bottom:48px;line-height:1.7}
+.btn-google{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid var(--border2);border-radius:var(--radius-lg);padding:15px 28px;font-size:16px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;color:var(--text);touch-action:manipulation;box-shadow:0 2px 10px rgba(0,0,0,.08)}
+.btn-google svg{width:22px;height:22px;flex-shrink:0}
+.login-note{font-size:12px;color:var(--text3);margin-top:28px;max-width:280px;line-height:1.7}
+.app{display:none;flex-direction:column;height:100vh}
+.app.show{display:flex}
+.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:12px 16px 10px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+.logo-title{font-family:'Playfair Display',serif;font-size:20px;font-weight:500}
+.logo-sub{font-size:11px;color:var(--text2);margin-top:1px}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.user-av{width:34px;height:34px;border-radius:50%;object-fit:cover;border:2px solid var(--border);cursor:pointer}
+.user-av-ph{width:34px;height:34px;border-radius:50%;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;color:var(--blue);border:2px solid var(--border);cursor:pointer}
+.btn-fab{background:var(--blue);color:#E6F1FB;border:none;border-radius:var(--radius);padding:9px 15px;font-size:14px;font-weight:500;font-family:'DM Sans',sans-serif;cursor:pointer;touch-action:manipulation}
+.content{flex:1;overflow-y:auto;padding:16px;padding-bottom:90px;-webkit-overflow-scrolling:touch}
+.bottomnav{position:fixed;bottom:0;left:0;right:0;background:var(--bg2);border-top:1px solid var(--border);display:flex;z-index:100;padding-bottom:env(safe-area-inset-bottom)}
+.nav-tab{flex:1;display:flex;flex-direction:column;align-items:center;padding:10px 4px 8px;cursor:pointer;color:var(--text2);font-size:11px;gap:4px;border-top:2px solid transparent;touch-action:manipulation;transition:.15s}
+.nav-tab.active{color:var(--blue);border-top-color:var(--blue)}
+.nav-icon{font-size:22px;line-height:1}
+.page{display:none}.page.active{display:block}
+.metrics{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.metric{background:var(--bg3);border-radius:var(--radius);padding:14px}
+.metric-label{font-size:12px;color:var(--text2);margin-bottom:6px}
+.metric-value{font-size:24px;font-weight:500;line-height:1}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px;margin-bottom:12px}
+.card-label{font-size:11.5px;font-weight:500;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px}
+.sec-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.sec-title{font-family:'Playfair Display',serif;font-size:22px;font-weight:500}
+.btn{padding:9px 16px;border-radius:var(--radius);border:1px solid var(--border2);background:var(--bg2);font-size:14px;cursor:pointer;font-family:'DM Sans',sans-serif;color:var(--text);touch-action:manipulation}
+.btn:active{opacity:.7}
+.btn-primary{background:var(--blue);color:#E6F1FB;border-color:var(--blue);font-weight:500}
+.btn-sm{padding:8px 14px;font-size:13px}
+label{font-size:13px;color:var(--text2);display:block;margin-bottom:5px}
+input,select,textarea{width:100%;padding:12px 14px;border:1px solid var(--border2);border-radius:var(--radius);font-size:16px;font-family:'DM Sans',sans-serif;background:var(--bg2);color:var(--text);margin-bottom:12px;-webkit-appearance:none;appearance:none}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--blue)}
+textarea{resize:vertical;min-height:90px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
+.search-bar{width:100%;padding:12px 16px;border:1px solid var(--border2);border-radius:var(--radius-lg);font-size:15px;font-family:'DM Sans',sans-serif;background:var(--bg3);color:var(--text);margin-bottom:14px}
+.patient-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);cursor:pointer}
+.patient-row:last-child{border-bottom:none}
+.avatar{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;flex-shrink:0}
+.patient-name{font-size:15px;font-weight:500}
+.patient-sub{font-size:13px;color:var(--text2);margin-top:2px}
+.badge{display:inline-block;font-size:11.5px;padding:3px 10px;border-radius:20px;font-weight:500}
+.badge-blue{background:var(--blue-bg);color:var(--blue-text)}
+.badge-green{background:var(--green-bg);color:var(--green-text)}
+.badge-amber{background:var(--amber-bg);color:var(--amber-text)}
+.badge-red{background:var(--red-bg);color:var(--red-text)}
+.badge-purple{background:var(--purple-bg);color:var(--purple-text)}
+.turno-card{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--bg3);border-radius:var(--radius);margin-bottom:8px;border-left:3px solid var(--blue)}
+.t-time{font-size:14px;font-weight:500;min-width:50px;color:var(--text2)}
+.t-name{font-size:15px;font-weight:500}
+.t-sub{font-size:12.5px;color:var(--text2);margin-top:2px}
+.a-tabs{display:flex;margin-bottom:14px;background:var(--bg3);border-radius:var(--radius);padding:3px}
+.a-tab{flex:1;text-align:center;padding:9px;font-size:14px;border-radius:8px;cursor:pointer;color:var(--text2);transition:.15s;touch-action:manipulation}
+.a-tab.active{background:var(--bg2);color:var(--text);font-weight:500;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.cal-nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;font-size:13px;margin-bottom:4px}
+.cal-wday{text-align:center;padding:5px 0;font-size:12px;color:var(--text2);font-weight:500}
+.cal-day{text-align:center;padding:10px 4px;border-radius:8px;cursor:pointer;position:relative;touch-action:manipulation}
+.cal-day.today{background:var(--blue);color:#E6F1FB;font-weight:500}
+.cal-day.has-appt::after{content:'';display:block;width:5px;height:5px;border-radius:50%;background:var(--blue);position:absolute;bottom:3px;left:50%;transform:translateX(-50%)}
+.cal-day.today.has-appt::after{background:#B5D4F4}
+.note-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px;margin-bottom:12px}
+.note-text{font-size:14px;line-height:1.65}
+.fin-row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border)}
+.fin-row:last-child{border-bottom:none}
+.amount-pos{color:var(--success);font-weight:500;font-size:16px}
+.amount-neg{color:var(--danger);font-weight:500;font-size:16px}
+.empty{text-align:center;color:var(--text3);font-size:14px;padding:28px 16px}
+.day-nav{display:flex;gap:8px;margin-bottom:12px}
+.day-nav .btn{flex:1;text-align:center}
+.modal-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:300;align-items:flex-end;justify-content:center}
+.modal-backdrop.open{display:flex}
+.modal{background:var(--bg2);border-radius:20px 20px 0 0;padding:16px 18px 32px;width:100%;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.modal-handle{width:40px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 14px}
+.modal-title{font-family:'Playfair Display',serif;font-size:20px;font-weight:500;margin-bottom:16px}
+.modal-footer{display:flex;gap:8px;margin-top:8px}
+.modal-footer .btn{flex:1;text-align:center;padding:12px}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen" class="login-screen">
+  <div style="font-size:56px;margin-bottom:16px">🌸</div>
+  <div class="login-logo">PsicoGestión</div>
+  <div class="login-sub">Tu consultorio organizado,<br>siempre con vos.</div>
+  <button class="btn-google" id="btn-google-login" onclick="loginGoogle()">
+    <svg viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+    Ingresar con Google
+  </button>
+  <div id="login-error" style="color:var(--danger);font-size:13px;margin-top:16px;display:none;max-width:300px;text-align:center;line-height:1.5;background:var(--red-bg);padding:10px 14px;border-radius:var(--radius)"></div>
+  <p class="login-note">Tus datos se guardan en este dispositivo, protegidos con tu cuenta de Google.</p>
+</div>
+
+<!-- APP -->
+<div class="app" id="main-app">
+  <div class="topbar">
+    <div>
+      <div class="logo-title">PsicoGestión</div>
+      <div class="logo-sub" id="fecha-top"></div>
+    </div>
+    <div class="topbar-right">
+      <div id="user-photo-wrap"></div>
+      <button class="btn-fab" onclick="fabAction()">+ Nuevo</button>
+    </div>
+  </div>
+  <div class="content">
+    <div id="page-inicio" class="page active">
+      <div class="metrics">
+        <div class="metric"><div class="metric-label">Pacientes activos</div><div class="metric-value" id="m-pac">0</div></div>
+        <div class="metric"><div class="metric-label">Turnos hoy</div><div class="metric-value" id="m-hoy">0</div></div>
+        <div class="metric"><div class="metric-label">Turnos esta semana</div><div class="metric-value" id="m-sem">0</div></div>
+        <div class="metric"><div class="metric-label">Ingresos del mes</div><div class="metric-value" id="m-ing" style="font-size:19px">$0</div></div>
+      </div>
+      <div class="card"><div class="card-label">Turnos de hoy</div><div id="today-list"></div></div>
+      <div class="card"><div class="card-label">Próximos turnos</div><div id="upcoming-list"></div></div>
+    </div>
+    <div id="page-pacientes" class="page">
+      <div class="sec-header"><div class="sec-title">Pacientes</div><button class="btn btn-primary btn-sm" onclick="openModal('modal-paciente')">+ Nuevo</button></div>
+      <input class="search-bar" type="search" placeholder="🔍  Buscar..." id="search-pac" oninput="renderPacientes()">
+      <div class="card" style="padding:4px 12px"><div id="lista-pacientes"></div></div>
+    </div>
+    <div id="page-agenda" class="page">
+      <div class="sec-header"><div class="sec-title">Agenda</div><button class="btn btn-primary btn-sm" onclick="openModal('modal-turno')">+ Turno</button></div>
+      <div class="a-tabs">
+        <div class="a-tab active" onclick="switchAgenda(this,'ag-dia')">Hoy</div>
+        <div class="a-tab" onclick="switchAgenda(this,'ag-semana')">Semana</div>
+        <div class="a-tab" onclick="switchAgenda(this,'ag-mes')">Mes</div>
+      </div>
+      <div id="ag-dia">
+        <div style="font-size:14px;font-weight:500;color:var(--text2);margin-bottom:10px" id="dia-label-str"></div>
+        <div class="day-nav"><button class="btn btn-sm" onclick="changeDay(-1)">‹ Anterior</button><button class="btn btn-sm" onclick="changeDay(1)">Siguiente ›</button></div>
+        <div id="dia-list"></div>
+      </div>
+      <div id="ag-semana" style="display:none"><div id="semana-list"></div></div>
+      <div id="ag-mes" style="display:none">
+        <div class="card">
+          <div class="cal-nav"><button class="btn btn-sm" onclick="changeMonth(-1)">‹</button><span id="mes-label" style="font-weight:500;font-size:16px"></span><button class="btn btn-sm" onclick="changeMonth(1)">›</button></div>
+          <div class="cal-grid" id="cal-wdays"></div>
+          <div class="cal-grid" id="cal-days"></div>
+        </div>
+        <div id="mes-turnos-list"></div>
+      </div>
+    </div>
+    <div id="page-notas" class="page">
+      <div class="sec-header"><div class="sec-title">Notas de sesión</div><button class="btn btn-primary btn-sm" onclick="openModal('modal-nota')">+ Nota</button></div>
+      <input class="search-bar" type="search" placeholder="🔍  Buscar..." id="search-nota" oninput="renderNotas()">
+      <div id="lista-notas"></div>
+    </div>
+    <div id="page-finanzas" class="page">
+      <div class="sec-header"><div class="sec-title">Contabilidad</div><button class="btn btn-primary btn-sm" onclick="openModal('modal-movimiento')">+ Registrar</button></div>
+      <div class="metrics" id="fin-metrics"></div>
+      <div class="card"><div class="card-label">Movimientos</div><div id="lista-movimientos"></div></div>
+    </div>
+  </div>
+  <nav class="bottomnav">
+    <div class="nav-tab active" onclick="showPage('inicio',this)"><div class="nav-icon">🏠</div>Inicio</div>
+    <div class="nav-tab" onclick="showPage('pacientes',this)"><div class="nav-icon">👥</div>Pacientes</div>
+    <div class="nav-tab" onclick="showPage('agenda',this)"><div class="nav-icon">📅</div>Agenda</div>
+    <div class="nav-tab" onclick="showPage('notas',this)"><div class="nav-icon">📝</div>Notas</div>
+    <div class="nav-tab" onclick="showPage('finanzas',this)"><div class="nav-icon">💰</div>Finanzas</div>
+  </nav>
+</div>
+
+<!-- MODALES -->
+<div class="modal-backdrop" id="modal-paciente">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modal-pac-title">Nuevo paciente</div>
+    <label>Nombre completo</label><input id="pac-nombre" placeholder="Nombre y apellido" autocomplete="off">
+    <div class="form-row">
+      <div><label>Nacimiento</label><input id="pac-nacimiento" type="date"></div>
+      <div><label>Teléfono</label><input id="pac-tel" type="tel" placeholder="+54 9 11..."></div>
+    </div>
+    <label>Email</label><input id="pac-email" type="email" placeholder="correo@email.com">
+    <label>Diagnóstico / Motivo de consulta</label><input id="pac-diag" placeholder="Ej: Ansiedad, depresión...">
+    <div class="form-row">
+      <div><label>Estado</label><select id="pac-estado"><option>Activo</option><option>En pausa</option><option>Alta</option></select></div>
+      <div><label>Obra social</label><input id="pac-obra" placeholder="OSDE, Particular..."></div>
+    </div>
+    <label>Observaciones</label><textarea id="pac-obs" placeholder="Información adicional..."></textarea>
+    <input type="hidden" id="pac-edit-id" value="">
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('modal-paciente')">Cancelar</button>
+      <button class="btn btn-primary" onclick="guardarPaciente()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="modal-turno">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modal-turno-title">Nuevo turno</div>
+    <label>Paciente</label><select id="turno-paciente"><option value="">Seleccionar...</option></select>
+    <div class="form-row">
+      <div><label>Fecha</label><input id="turno-fecha" type="date"></div>
+      <div><label>Hora</label><input id="turno-hora" type="time" value="09:00"></div>
+    </div>
+    <div class="form-row">
+      <div><label>Modalidad</label><select id="turno-modalidad"><option>Presencial</option><option>Videollamada</option><option>Teléfono</option></select></div>
+      <div><label>Duración</label><select id="turno-duracion"><option value="45">45 min</option><option value="50">50 min</option><option value="60">60 min</option></select></div>
+    </div>
+    <label>Notas del turno</label><textarea id="turno-notas" placeholder="Recordatorios, temas a tratar..."></textarea>
+    <input type="hidden" id="turno-edit-id" value="">
+    <div class="modal-footer">
+      <button class="btn" id="turno-btn-eliminar" style="color:var(--danger);border-color:var(--red-bg);display:none" onclick="eliminarTurno()">Eliminar</button>
+      <button class="btn" onclick="closeModal('modal-turno')">Cancelar</button>
+      <button class="btn btn-primary" onclick="guardarTurno()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="modal-nota">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Nota de sesión</div>
+    <label>Paciente</label><select id="nota-paciente"><option value="">Seleccionar...</option></select>
+    <label>Fecha de la sesión</label><input id="nota-fecha" type="date">
+    <label>Contenido de la sesión</label><textarea id="nota-texto" placeholder="Resumen, observaciones, evolución..." style="min-height:130px"></textarea>
+    <label>Estado del paciente</label>
+    <select id="nota-estado"><option>Estable</option><option>Mejoría</option><option>Crisis</option><option>Regresión</option><option>Sin cambios</option></select>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('modal-nota')">Cancelar</button>
+      <button class="btn btn-primary" onclick="guardarNota()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="modal-movimiento">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modal-mov-title">Registrar movimiento</div>
+    <label>Tipo</label><select id="mov-tipo"><option value="ingreso">Ingreso 💰</option><option value="egreso">Egreso 💸</option></select>
+    <label>Descripción</label><input id="mov-desc" placeholder="Ej: Sesión, alquiler...">
+    <label>Paciente (opcional)</label><select id="mov-paciente"><option value="">Ninguno / Otro</option></select>
+    <div class="form-row">
+      <div><label>Monto ($)</label><input id="mov-monto" type="number" inputmode="decimal" placeholder="0"></div>
+      <div><label>Fecha</label><input id="mov-fecha" type="date"></div>
+    </div>
+    <input type="hidden" id="mov-edit-id" value="">
+    <div class="modal-footer">
+      <button class="btn" id="mov-btn-eliminar" style="color:var(--danger);border-color:var(--red-bg);display:none" onclick="eliminarMovimiento()">Eliminar</button>
+      <button class="btn" onclick="closeModal('modal-movimiento')">Cancelar</button>
+      <button class="btn btn-primary" onclick="guardarMovimiento()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="modal-ficha">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+      <div class="modal-title" id="ficha-titulo" style="margin-bottom:0"></div>
+      <button class="btn btn-sm" onclick="closeModal('modal-ficha')">✕</button>
+    </div>
+    <div id="ficha-content"></div>
+    <div class="modal-footer" style="flex-wrap:wrap;gap:8px">
+      <button class="btn btn-sm" style="color:var(--danger);border-color:var(--red-bg)" onclick="eliminarPaciente()">Eliminar</button>
+      <button class="btn btn-sm" onclick="editarPaciente()">Editar</button>
+      <button class="btn btn-primary btn-sm" onclick="closeModal('modal-ficha');openModal('modal-turno')">+ Turno</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="modal-usuario">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div style="text-align:center;padding:8px 0 20px">
+      <div id="modal-user-photo" style="margin:0 auto 12px"></div>
+      <div id="modal-user-name" style="font-size:18px;font-weight:500"></div>
+      <div id="modal-user-email" style="font-size:13px;color:var(--text2);margin-top:4px"></div>
+    </div>
+    <button class="btn" style="width:100%;text-align:center;padding:13px;color:var(--danger)" onclick="cerrarSesion()">Cerrar sesión</button>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="modal-confirmar">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" style="font-size:18px">Confirmar eliminación</div>
+    <p id="confirmar-msg" style="font-size:15px;color:var(--text2);margin-bottom:20px;line-height:1.5"></p>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('modal-confirmar')">Cancelar</button>
+      <button id="confirmar-btn" class="btn" style="background:var(--danger);color:#fff;border-color:var(--danger)">Eliminar</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script>
+const CLIENT_ID='1001611847094-b1qakj4d0i3sbivdn1pdiacskhnscg01.apps.googleusercontent.com';
+let currentUser=null;
+const hoy=new Date();hoy.setHours(0,0,0,0);
+let fichaId=null,calMonth=new Date(),agDia=new Date(),currentPage='inicio';
+const avBg=['#E6F1FB','#E1F5EE','#EEEDFE','#FAECE7','#FAEEDA'];
+const avTx=['#185FA5','#0F6E56','#534AB7','#993C1D','#854F0B'];
+
+function storageKey(){return'psico_v2_'+(currentUser?currentUser.sub:'');}
+function loadDB(){try{return JSON.parse(localStorage.getItem(storageKey()))||{pacientes:[],turnos:[],notas:[],movimientos:[]};}catch(e){return{pacientes:[],turnos:[],notas:[],movimientos:[]};}}
+function saveDB(){localStorage.setItem(storageKey(),JSON.stringify(db));}
+let db={pacientes:[],turnos:[],notas:[],movimientos:[]};
+
+function loginGoogle(){
+  const err=document.getElementById('login-error');
+  err.style.display='none';
+  if(typeof google==='undefined'){err.textContent='Necesitás conexión a internet para iniciar sesión por primera vez.';err.style.display='block';return;}
+  google.accounts.id.initialize({client_id:CLIENT_ID,callback:onCredential,ux_mode:'popup',cancel_on_tap_outside:false});
+  google.accounts.id.prompt(n=>{
+    if(n.isNotDisplayed()||n.isSkippedMoment()){
+      err.textContent='El popup fue bloqueado. Tocá nuevamente el botón para intentar otra vez.';
+      err.style.display='block';
+    }
+  });
+}
+
+function onCredential(resp){
+  try{
+    const parts=resp.credential.split('.');
+    const payload=JSON.parse(decodeURIComponent(escape(atob(parts[1].replace(/-/g,'+').replace(/_/g,'/')))));
+    currentUser={sub:payload.sub,name:payload.name||'',email:payload.email||'',picture:payload.picture||''};
+    localStorage.setItem('psico_session',JSON.stringify(currentUser));
+    db=loadDB();
+    arrancarApp();
+  }catch(e){
+    document.getElementById('login-error').textContent='Error al iniciar sesión. Intentá de nuevo.';
+    document.getElementById('login-error').style.display='block';
+  }
+}
+
+function cerrarSesion(){
+  closeModal('modal-usuario');
+  if(typeof google!=='undefined')google.accounts.id.disableAutoSelect();
+  localStorage.removeItem('psico_session');
+  currentUser=null;db={pacientes:[],turnos:[],notas:[],movimientos:[]};
+  document.getElementById('main-app').classList.remove('show');
+  document.getElementById('login-screen').style.display='flex';
+}
+
+function arrancarApp(){
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('main-app').classList.add('show');
+  document.getElementById('fecha-top').textContent=hoy.toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long'});
+  const u=currentUser;
+  const w=document.getElementById('user-photo-wrap');
+  if(u.picture){w.innerHTML=`<img src="${u.picture}" class="user-av" onclick="openModal('modal-usuario')" onerror="this.style.display='none'">`;}
+  else{w.innerHTML=`<div class="user-av-ph" onclick="openModal('modal-usuario')">${(u.name||'U')[0].toUpperCase()}</div>`;}
+  document.getElementById('modal-user-name').textContent=u.name||'Usuario';
+  document.getElementById('modal-user-email').textContent=u.email||'';
+  document.getElementById('modal-user-photo').innerHTML=u.picture?`<img src="${u.picture}" style="width:64px;height:64px;border-radius:50%;object-fit:cover">`:`<div style="width:64px;height:64px;border-radius:50%;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:500;color:var(--blue)">${(u.name||'U')[0].toUpperCase()}</div>`;
+  renderInicio();
+}
+
+// Auto-login si hay sesión guardada
+(function(){
+  try{
+    const s=JSON.parse(localStorage.getItem('psico_session')||'null');
+    if(s&&s.sub){currentUser=s;db=loadDB();arrancarApp();}
+  }catch(e){}
+})();
+
+function todayStr(){return hoy.toISOString().split('T')[0]}
+function fmtC(d){return new Date(d+'T00:00:00').toLocaleDateString('es-AR',{weekday:'short',day:'numeric',month:'short'})}
+function fmtL(d){return new Date(d+'T00:00:00').toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long'})}
+function fmtFull(d){return new Date(d+'T00:00:00').toLocaleDateString('es-AR',{day:'numeric',month:'long',year:'numeric'})}
+function ini(n){return n.trim().split(' ').slice(0,2).map(x=>x[0]||'').join('').toUpperCase()}
+function genId(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7);}
+function pById(id){return db.pacientes.find(x=>x._id===id);}
+function pColor(id){const i=db.pacientes.findIndex(x=>x._id===id);return Math.max(0,i)%5;}
+
+const fabMap={inicio:'modal-turno',pacientes:'modal-paciente',agenda:'modal-turno',notas:'modal-nota',finanzas:'modal-movimiento'};
+function fabAction(){openModal(fabMap[currentPage]);}
+
+function showPage(id,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  el.classList.add('active');currentPage=id;
+  if(id==='inicio')renderInicio();
+  if(id==='pacientes')renderPacientes();
+  if(id==='agenda'){renderDia();renderSemana();renderCal();}
+  if(id==='notas')renderNotas();
+  if(id==='finanzas')renderFinanzas();
+}
+
+function openModal(id){
+  document.getElementById(id).classList.add('open');
+  if(['modal-turno','modal-nota','modal-movimiento'].includes(id))popSelects();
+  if(id==='modal-turno'&&!document.getElementById('turno-edit-id').value)document.getElementById('turno-fecha').value=todayStr();
+  if(id==='modal-nota')document.getElementById('nota-fecha').value=todayStr();
+  if(id==='modal-movimiento'&&!document.getElementById('mov-edit-id').value)document.getElementById('mov-fecha').value=todayStr();
+}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.modal-backdrop').forEach(m=>m.addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');}));
+
+function confirmar(msg,cb){
+  document.getElementById('confirmar-msg').textContent=msg;
+  document.getElementById('modal-confirmar').classList.add('open');
+  document.getElementById('confirmar-btn').onclick=function(){closeModal('modal-confirmar');cb();};
+}
+
+function popSelects(){
+  ['turno-paciente','nota-paciente','mov-paciente'].forEach(sid=>{
+    const s=document.getElementById(sid);if(!s)return;
+    const base=sid==='mov-paciente'?'<option value="">Ninguno / Otro</option>':'<option value="">Seleccionar paciente...</option>';
+    s.innerHTML=base+db.pacientes.map(p=>`<option value="${p._id}">${p.nombre}</option>`).join('');
+  });
+}
+
+function guardarPaciente(){
+  const eid=document.getElementById('pac-edit-id').value;
+  const p={_id:eid||genId(),nombre:document.getElementById('pac-nombre').value.trim(),nacimiento:document.getElementById('pac-nacimiento').value,tel:document.getElementById('pac-tel').value.trim(),email:document.getElementById('pac-email').value.trim(),diag:document.getElementById('pac-diag').value.trim(),estado:document.getElementById('pac-estado').value,obra:document.getElementById('pac-obra').value.trim(),obs:document.getElementById('pac-obs').value.trim()};
+  if(!p.nombre){alert('Ingresá el nombre del paciente.');return;}
+  if(eid){const i=db.pacientes.findIndex(x=>x._id===eid);if(i>-1)db.pacientes[i]=p;}else{db.pacientes.push(p);}
+  saveDB();
+  document.getElementById('pac-edit-id').value='';document.getElementById('modal-pac-title').textContent='Nuevo paciente';
+  ['pac-nombre','pac-nacimiento','pac-tel','pac-email','pac-diag','pac-obra','pac-obs'].forEach(i=>document.getElementById(i).value='');
+  closeModal('modal-paciente');renderPacientes();renderInicio();
+}
+
+function renderPacientes(){
+  const q=(document.getElementById('search-pac').value||'').toLowerCase();
+  const f=db.pacientes.filter(p=>!q||p.nombre.toLowerCase().includes(q)||(p.diag&&p.diag.toLowerCase().includes(q)));
+  document.getElementById('lista-pacientes').innerHTML=f.length?f.map((p,i)=>`<div class="patient-row" onclick="verFicha('${p._id}')"><div class="avatar" style="background:${avBg[i%5]};color:${avTx[i%5]}">${ini(p.nombre)}</div><div style="flex:1"><div class="patient-name">${p.nombre}</div><div class="patient-sub">${p.diag||'Sin diagnóstico'}</div></div><span class="badge badge-${p.estado==='Activo'?'blue':p.estado==='Alta'?'green':'amber'}">${p.estado}</span></div>`).join(''):'<div class="empty">No hay pacientes aún. Tocá "+ Nuevo".</div>';
+}
+
+function verFicha(id){
+  fichaId=id;const p=pById(id);if(!p)return;
+  document.getElementById('ficha-titulo').textContent=p.nombre;
+  const ts=db.turnos.filter(t=>t.pacienteIdx===id).sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||''));
+  document.getElementById('ficha-content').innerHTML=`
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px 14px;font-size:14px;margin-bottom:14px">
+      <div><div style="font-size:12px;color:var(--text2)">Teléfono</div><div>${p.tel||'-'}</div></div>
+      <div><div style="font-size:12px;color:var(--text2)">Email</div><div style="word-break:break-all">${p.email||'-'}</div></div>
+      <div><div style="font-size:12px;color:var(--text2)">Nacimiento</div><div>${p.nacimiento?fmtFull(p.nacimiento):'-'}</div></div>
+      <div><div style="font-size:12px;color:var(--text2)">Obra social</div><div>${p.obra||'-'}</div></div>
+      <div style="grid-column:1/-1"><div style="font-size:12px;color:var(--text2)">Diagnóstico</div><div>${p.diag||'-'}</div></div>
+      ${p.obs?`<div style="grid-column:1/-1"><div style="font-size:12px;color:var(--text2)">Observaciones</div><div>${p.obs}</div></div>`:''}
+    </div>
+    <div style="font-size:12px;font-weight:500;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Sesiones (${ts.length})</div>
+    ${ts.slice(0,5).map(t=>`<div class="turno-card" style="margin-bottom:6px"><div style="font-size:12.5px;color:var(--text2);min-width:90px">${fmtC(t.fecha)}</div><div style="font-size:14px">${t.hora} · ${t.modalidad}</div></div>`).join('')||'<div style="font-size:13px;color:var(--text3)">Sin sesiones registradas</div>'}`;
+  openModal('modal-ficha');
+}
+
+function editarPaciente(){
+  const p=pById(fichaId);if(!p)return;
+  ['nombre','nacimiento','tel','email','diag','obra','obs'].forEach(k=>document.getElementById('pac-'+k).value=p[k]||'');
+  document.getElementById('pac-estado').value=p.estado;
+  document.getElementById('pac-edit-id').value=fichaId;
+  document.getElementById('modal-pac-title').textContent='Editar paciente';
+  closeModal('modal-ficha');openModal('modal-paciente');
+}
+
+function eliminarPaciente(){
+  confirmar('Se eliminará este paciente y sus turnos y notas asociados.',function(){
+    db.turnos=db.turnos.filter(t=>t.pacienteIdx!==fichaId);
+    db.notas=db.notas.filter(n=>n.pacienteIdx!==fichaId);
+    db.movimientos=db.movimientos.map(m=>m.pacienteIdx===fichaId?{...m,pacienteIdx:''}:m);
+    db.pacientes=db.pacientes.filter(p=>p._id!==fichaId);
+    saveDB();closeModal('modal-ficha');renderPacientes();renderInicio();
+  });
+}
+
+function guardarTurno(){
+  const eid=document.getElementById('turno-edit-id').value;
+  const t={_id:eid||genId(),pacienteIdx:document.getElementById('turno-paciente').value,fecha:document.getElementById('turno-fecha').value,hora:document.getElementById('turno-hora').value,modalidad:document.getElementById('turno-modalidad').value,duracion:document.getElementById('turno-duracion').value,notas:document.getElementById('turno-notas').value.trim()};
+  if(!t.pacienteIdx){alert('Seleccioná un paciente.');return;}
+  if(!t.fecha){alert('Seleccioná una fecha.');return;}
+  if(eid){const i=db.turnos.findIndex(x=>x._id===eid);if(i>-1)db.turnos[i]=t;}else{db.turnos.push(t);}
+  saveDB();
+  document.getElementById('turno-notas').value='';document.getElementById('turno-edit-id').value='';
+  document.getElementById('modal-turno-title').textContent='Nuevo turno';document.getElementById('turno-btn-eliminar').style.display='none';
+  closeModal('modal-turno');renderInicio();renderDia();renderSemana();renderCal();
+}
+
+function editarTurno(id){
+  const t=db.turnos.find(x=>x._id===id);if(!t)return;
+  popSelects();
+  document.getElementById('turno-paciente').value=t.pacienteIdx;document.getElementById('turno-fecha').value=t.fecha;document.getElementById('turno-hora').value=t.hora;document.getElementById('turno-modalidad').value=t.modalidad;document.getElementById('turno-duracion').value=t.duracion;document.getElementById('turno-notas').value=t.notas||'';document.getElementById('turno-edit-id').value=id;
+  document.getElementById('modal-turno-title').textContent='Editar turno';document.getElementById('turno-btn-eliminar').style.display='block';
+  openModal('modal-turno');
+}
+
+function eliminarTurno(){
+  const id=document.getElementById('turno-edit-id').value;
+  confirmar('Se eliminará este turno de la agenda.',function(){
+    db.turnos=db.turnos.filter(t=>t._id!==id);saveDB();
+    document.getElementById('turno-edit-id').value='';document.getElementById('modal-turno-title').textContent='Nuevo turno';document.getElementById('turno-btn-eliminar').style.display='none';
+    closeModal('modal-turno');renderInicio();renderDia();renderSemana();renderCal();
+  });
+}
+
+function guardarNota(){
+  const n={_id:genId(),pacienteIdx:document.getElementById('nota-paciente').value,fecha:document.getElementById('nota-fecha').value,texto:document.getElementById('nota-texto').value.trim(),estado:document.getElementById('nota-estado').value};
+  if(!n.texto){alert('Escribí el contenido de la nota.');return;}
+  db.notas.push(n);saveDB();document.getElementById('nota-texto').value='';
+  closeModal('modal-nota');renderNotas();
+}
+
+function guardarMovimiento(){
+  const eid=document.getElementById('mov-edit-id').value;
+  const m={_id:eid||genId(),tipo:document.getElementById('mov-tipo').value,desc:document.getElementById('mov-desc').value.trim(),pacienteIdx:document.getElementById('mov-paciente').value,monto:parseFloat(document.getElementById('mov-monto').value)||0,fecha:document.getElementById('mov-fecha').value};
+  if(!m.desc||!m.monto){alert('Completá la descripción y el monto.');return;}
+  if(eid){const i=db.movimientos.findIndex(x=>x._id===eid);if(i>-1)db.movimientos[i]=m;}else{db.movimientos.push(m);}
+  saveDB();
+  document.getElementById('mov-desc').value='';document.getElementById('mov-monto').value='';document.getElementById('mov-edit-id').value='';
+  document.getElementById('modal-mov-title').textContent='Registrar movimiento';document.getElementById('mov-btn-eliminar').style.display='none';
+  closeModal('modal-movimiento');renderFinanzas();renderInicio();
+}
+
+function editarMovimiento(id){
+  const m=db.movimientos.find(x=>x._id===id);if(!m)return;
+  popSelects();
+  document.getElementById('mov-tipo').value=m.tipo;document.getElementById('mov-desc').value=m.desc;document.getElementById('mov-paciente').value=m.pacienteIdx||'';document.getElementById('mov-monto').value=m.monto;document.getElementById('mov-fecha').value=m.fecha;document.getElementById('mov-edit-id').value=id;
+  document.getElementById('modal-mov-title').textContent='Editar movimiento';document.getElementById('mov-btn-eliminar').style.display='block';
+  openModal('modal-movimiento');
+}
+
+function eliminarMovimiento(){
+  const id=document.getElementById('mov-edit-id').value;
+  confirmar('Se eliminará este movimiento de contabilidad.',function(){
+    db.movimientos=db.movimientos.filter(m=>m._id!==id);saveDB();
+    document.getElementById('mov-edit-id').value='';document.getElementById('modal-mov-title').textContent='Registrar movimiento';document.getElementById('mov-btn-eliminar').style.display='none';
+    closeModal('modal-movimiento');renderFinanzas();renderInicio();
+  });
+}
+
+function renderInicio(){
+  document.getElementById('m-pac').textContent=db.pacientes.filter(p=>p.estado==='Activo').length;
+  const ts=todayStr();const hoyT=db.turnos.filter(t=>t.fecha===ts);
+  document.getElementById('m-hoy').textContent=hoyT.length;
+  const wd=hoy.getDay();const lun=new Date(hoy);lun.setDate(hoy.getDate()-(wd===0?6:wd-1));const dom=new Date(lun);dom.setDate(lun.getDate()+6);
+  document.getElementById('m-sem').textContent=db.turnos.filter(t=>{const d=new Date(t.fecha+'T00:00:00');return d>=lun&&d<=dom;}).length;
+  const mes=new Date().toISOString().slice(0,7);
+  const ing=db.movimientos.filter(m=>m.tipo==='ingreso'&&m.fecha&&m.fecha.slice(0,7)===mes).reduce((a,m)=>a+m.monto,0);
+  document.getElementById('m-ing').textContent='$'+ing.toLocaleString('es-AR');
+  document.getElementById('today-list').innerHTML=[...hoyT].sort((a,b)=>a.hora.localeCompare(b.hora)).map(t=>{const p=pById(t.pacienteIdx);const c=pColor(t.pacienteIdx);return`<div class="turno-card" style="border-left-color:${avTx[c]}"><div class="t-time">${t.hora}</div><div><div class="t-name">${p?p.nombre:'Paciente'}</div><div class="t-sub">${t.modalidad} · ${t.duracion} min</div></div></div>`;}).join('')||'<div class="empty">Sin turnos hoy 🗓️</div>';
+  const prox=db.turnos.filter(t=>t.fecha>ts).sort((a,b)=>a.fecha.localeCompare(b.fecha)||a.hora.localeCompare(b.hora)).slice(0,5);
+  document.getElementById('upcoming-list').innerHTML=prox.map(t=>{const p=pById(t.pacienteIdx);return`<div class="turno-card"><div style="min-width:90px;font-size:12px;color:var(--text2)">${fmtC(t.fecha)}</div><div><div class="t-name">${p?p.nombre:'Paciente'}</div><div class="t-sub">${t.hora} · ${t.modalidad}</div></div></div>`;}).join('')||'<div class="empty">Sin próximos turnos</div>';
+}
+
+function switchAgenda(el,id){
+  document.querySelectorAll('.a-tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');
+  ['ag-dia','ag-semana','ag-mes'].forEach(i=>document.getElementById(i).style.display=i===id?'block':'none');
+  if(id==='ag-dia')renderDia();if(id==='ag-semana')renderSemana();if(id==='ag-mes')renderCal();
+}
+
+function renderDia(){
+  const ds=agDia.toISOString().split('T')[0];
+  document.getElementById('dia-label-str').textContent=fmtL(ds);
+  const ts=db.turnos.filter(t=>t.fecha===ds).sort((a,b)=>a.hora.localeCompare(b.hora));
+  document.getElementById('dia-list').innerHTML=ts.map(t=>{const p=pById(t.pacienteIdx);const c=pColor(t.pacienteIdx);return`<div class="turno-card" style="border-left-color:${avTx[c]};justify-content:space-between"><div style="display:flex;align-items:center;gap:12px;flex:1"><div class="t-time">${t.hora}</div><div><div class="t-name">${p?p.nombre:'Paciente'}</div><div class="t-sub">${t.modalidad} · ${t.duracion} min</div></div></div><button class="btn btn-sm" onclick="editarTurno('${t._id}')">✏️</button></div>`;}).join('')||'<div class="empty">Sin turnos este día</div>';
+}
+function changeDay(d){agDia.setDate(agDia.getDate()+d);renderDia();}
+
+function renderSemana(){
+  const wd=hoy.getDay();const mon=new Date(hoy);mon.setDate(hoy.getDate()-(wd===0?6:wd-1));
+  const days=Array.from({length:6},(_,i)=>{const d=new Date(mon);d.setDate(mon.getDate()+i);return d;});
+  let html='';
+  days.forEach(d=>{
+    const ds=d.toISOString().split('T')[0];
+    const ts=db.turnos.filter(t=>t.fecha===ds).sort((a,b)=>a.hora.localeCompare(b.hora));
+    html+=`<div style="margin-bottom:14px"><div style="font-size:14px;font-weight:500;color:${ds===todayStr()?'var(--blue)':'var(--text2)'};margin-bottom:8px;text-transform:capitalize">${d.toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'short'})}${ds===todayStr()?' ✦':''}</div>`;
+    html+=ts.map(t=>{const p=pById(t.pacienteIdx);const c=pColor(t.pacienteIdx);return`<div class="turno-card" style="border-left-color:${avTx[c]};justify-content:space-between"><div style="display:flex;align-items:center;gap:12px;flex:1"><div class="t-time">${t.hora}</div><div><div class="t-name">${p?p.nombre:'Paciente'}</div><div class="t-sub">${t.modalidad}</div></div></div><button class="btn btn-sm" onclick="editarTurno('${t._id}')">✏️</button></div>`;}).join('')||'<div style="font-size:13px;color:var(--text3);padding:4px 0">Sin turnos</div>';
+    html+='</div>';
+  });
+  document.getElementById('semana-list').innerHTML=html;
+}
+
+function renderCal(){
+  const y=calMonth.getFullYear(),m=calMonth.getMonth();
+  document.getElementById('mes-label').textContent=new Date(y,m,1).toLocaleDateString('es-AR',{month:'long',year:'numeric'});
+  document.getElementById('cal-wdays').innerHTML=['Lu','Ma','Mi','Ju','Vi','Sa','Do'].map(d=>`<div class="cal-wday">${d}</div>`).join('');
+  const first=new Date(y,m,1).getDay(),offset=first===0?6:first-1,total=new Date(y,m+1,0).getDate();
+  let html='';for(let i=0;i<offset;i++)html+='<div></div>';
+  for(let d=1;d<=total;d++){const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;html+=`<div class="cal-day ${ds===todayStr()?'today':''} ${db.turnos.some(t=>t.fecha===ds)?'has-appt':''}" onclick="selectDay('${ds}')">${d}</div>`;}
+  document.getElementById('cal-days').innerHTML=html;
+  const mes=`${y}-${String(m+1).padStart(2,'0')}`;
+  const mts=db.turnos.filter(t=>t.fecha&&t.fecha.startsWith(mes)).sort((a,b)=>a.fecha.localeCompare(b.fecha)||a.hora.localeCompare(b.hora));
+  document.getElementById('mes-turnos-list').innerHTML=mts.length?`<div class="card"><div class="card-label">Turnos del mes (${mts.length})</div>`+mts.map(t=>{const p=pById(t.pacienteIdx);return`<div class="fin-row"><span style="font-size:13px;color:var(--text2)">${fmtC(t.fecha)} ${t.hora}</span><span style="font-weight:500">${p?p.nombre:'?'}</span><div style="display:flex;align-items:center;gap:8px"><span class="badge badge-blue">${t.modalidad}</span><button class="btn btn-sm" onclick="editarTurno('${t._id}')">✏️</button></div></div>`;}).join('')+'</div>':'';
+}
+function selectDay(ds){agDia=new Date(ds+'T00:00:00');switchAgenda(document.querySelectorAll('.a-tab')[0],'ag-dia');}
+function changeMonth(d){calMonth.setMonth(calMonth.getMonth()+d);renderCal();}
+
+function renderNotas(){
+  const q=(document.getElementById('search-nota').value||'').toLowerCase();
+  const ec={Estable:'blue','Mejoría':'green',Crisis:'red','Regresión':'amber','Sin cambios':'purple'};
+  const f=db.notas.filter(n=>{if(!q)return true;const p=pById(n.pacienteIdx);return(p&&p.nombre.toLowerCase().includes(q))||n.texto.toLowerCase().includes(q);}).sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||''));
+  document.getElementById('lista-notas').innerHTML=f.map(n=>{const p=pById(n.pacienteIdx);return`<div class="note-card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:8px"><span style="font-weight:500;font-size:15px">${p?p.nombre:'Paciente'}</span><div style="display:flex;gap:6px;align-items:center;flex-shrink:0"><span style="font-size:12px;color:var(--text2)">${n.fecha?fmtC(n.fecha):''}</span><span class="badge badge-${ec[n.estado]||'blue'}">${n.estado}</span></div></div><div class="note-text">${n.texto}</div></div>`;}).join('')||'<div class="empty">No hay notas aún. Tocá "+ Nota".</div>';
+}
+
+function renderFinanzas(){
+  const mes=new Date().toISOString().slice(0,7);
+  const mm=db.movimientos.filter(m=>m.fecha&&m.fecha.slice(0,7)===mes);
+  const ing=mm.filter(m=>m.tipo==='ingreso').reduce((a,m)=>a+m.monto,0);
+  const egr=mm.filter(m=>m.tipo==='egreso').reduce((a,m)=>a+m.monto,0);
+  const bal=ing-egr;
+  document.getElementById('fin-metrics').innerHTML=`<div class="metric"><div class="metric-label">Ingresos del mes</div><div class="metric-value" style="color:var(--success);font-size:19px">$${ing.toLocaleString('es-AR')}</div></div><div class="metric"><div class="metric-label">Egresos del mes</div><div class="metric-value" style="color:var(--danger);font-size:19px">$${egr.toLocaleString('es-AR')}</div></div><div class="metric"><div class="metric-label">Balance mensual</div><div class="metric-value" style="font-size:19px;color:${bal>=0?'var(--success)':'var(--danger)'}">$${bal.toLocaleString('es-AR')}</div></div><div class="metric"><div class="metric-label">Total movimientos</div><div class="metric-value">${db.movimientos.length}</div></div>`;
+  const sorted=[...db.movimientos].sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||''));
+  document.getElementById('lista-movimientos').innerHTML=sorted.map(m=>{const p=m.pacienteIdx?pById(m.pacienteIdx):null;return`<div class="fin-row"><div style="flex:1"><div style="font-size:14.5px;font-weight:500">${m.desc}</div><div style="font-size:12.5px;color:var(--text2)">${m.fecha?fmtC(m.fecha):''}${p?' · '+p.nombre:''}</div></div><div style="display:flex;align-items:center;gap:10px"><span class="${m.tipo==='ingreso'?'amount-pos':'amount-neg'}">${m.tipo==='ingreso'?'+':'-'}$${m.monto.toLocaleString('es-AR')}</span><button class="btn btn-sm" onclick="editarMovimiento('${m._id}')">✏️</button></div></div>`;}).join('')||'<div class="empty">Sin movimientos registrados</div>';
+}
+</script>
+</body>
+</html>
