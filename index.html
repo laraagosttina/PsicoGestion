@@ -225,6 +225,13 @@ textarea{resize:vertical;min-height:90px}
       <div><label>Modalidad</label><select id="turno-modalidad"><option>Presencial</option><option>Videollamada</option><option>Teléfono</option></select></div>
       <div><label>Duración</label><select id="turno-duracion"><option value="45">45 min</option><option value="50">50 min</option><option value="60">60 min</option></select></div>
     </div>
+    <label>Asistencia</label>
+    <select id="turno-asistencia">
+      <option value="pendiente">⏳ Pendiente</option>
+      <option value="asistio">✅ Asistió</option>
+      <option value="ausente">❌ Ausente</option>
+      <option value="cancelado">🚫 Cancelado</option>
+    </select>
     <label>Notas del turno</label><textarea id="turno-notas" placeholder="Recordatorios, temas a tratar..."></textarea>
     <input type="hidden" id="turno-edit-id" value="">
     <div class="modal-footer">
@@ -262,6 +269,15 @@ textarea{resize:vertical;min-height:90px}
       <div><label>Monto ($)</label><input id="mov-monto" type="number" inputmode="decimal" placeholder="0"></div>
       <div><label>Fecha</label><input id="mov-fecha" type="date"></div>
     </div>
+    <label>Método de pago</label>
+    <select id="mov-metodo">
+      <option value="">Sin especificar</option>
+      <option value="Efectivo">💵 Efectivo</option>
+      <option value="Transferencia">📲 Transferencia</option>
+      <option value="Débito">💳 Débito</option>
+      <option value="Crédito">💳 Crédito</option>
+      <option value="Obra social">🏥 Obra social</option>
+    </select>
     <input type="hidden" id="mov-edit-id" value="">
     <div class="modal-footer">
       <button class="btn" id="mov-btn-eliminar" style="color:var(--danger);border-color:var(--red-bg);display:none" onclick="eliminarMovimiento()">Eliminar</button>
@@ -487,7 +503,7 @@ function eliminarPaciente(){
 
 function guardarTurno(){
   const eid=document.getElementById('turno-edit-id').value;
-  const t={_id:eid||genId(),pacienteIdx:document.getElementById('turno-paciente').value,fecha:document.getElementById('turno-fecha').value,hora:document.getElementById('turno-hora').value,modalidad:document.getElementById('turno-modalidad').value,duracion:document.getElementById('turno-duracion').value,notas:document.getElementById('turno-notas').value.trim()};
+  const t={_id:eid||genId(),pacienteIdx:document.getElementById('turno-paciente').value,fecha:document.getElementById('turno-fecha').value,hora:document.getElementById('turno-hora').value,modalidad:document.getElementById('turno-modalidad').value,duracion:document.getElementById('turno-duracion').value,asistencia:document.getElementById('turno-asistencia').value,notas:document.getElementById('turno-notas').value.trim()};
   if(!t.pacienteIdx){alert('Seleccioná un paciente.');return;}
   if(!t.fecha){alert('Seleccioná una fecha.');return;}
   if(eid){const i=db.turnos.findIndex(x=>x._id===eid);if(i>-1)db.turnos[i]=t;}else{db.turnos.push(t);}
@@ -500,7 +516,7 @@ function guardarTurno(){
 function editarTurno(id){
   const t=db.turnos.find(x=>x._id===id);if(!t)return;
   popSelects();
-  document.getElementById('turno-paciente').value=t.pacienteIdx;document.getElementById('turno-fecha').value=t.fecha;document.getElementById('turno-hora').value=t.hora;document.getElementById('turno-modalidad').value=t.modalidad;document.getElementById('turno-duracion').value=t.duracion;document.getElementById('turno-notas').value=t.notas||'';document.getElementById('turno-edit-id').value=id;
+  document.getElementById('turno-paciente').value=t.pacienteIdx;document.getElementById('turno-fecha').value=t.fecha;document.getElementById('turno-hora').value=t.hora;document.getElementById('turno-modalidad').value=t.modalidad;document.getElementById('turno-duracion').value=t.duracion;document.getElementById('turno-asistencia').value=t.asistencia||'pendiente';document.getElementById('turno-notas').value=t.notas||'';document.getElementById('turno-edit-id').value=id;
   document.getElementById('modal-turno-title').textContent='Editar turno';document.getElementById('turno-btn-eliminar').style.display='block';
   openModal('modal-turno');
 }
@@ -523,11 +539,11 @@ function guardarNota(){
 
 function guardarMovimiento(){
   const eid=document.getElementById('mov-edit-id').value;
-  const m={_id:eid||genId(),tipo:document.getElementById('mov-tipo').value,desc:document.getElementById('mov-desc').value.trim(),pacienteIdx:document.getElementById('mov-paciente').value,monto:parseFloat(document.getElementById('mov-monto').value)||0,fecha:document.getElementById('mov-fecha').value};
+  const m={_id:eid||genId(),tipo:document.getElementById('mov-tipo').value,desc:document.getElementById('mov-desc').value.trim(),pacienteIdx:document.getElementById('mov-paciente').value,monto:parseFloat(document.getElementById('mov-monto').value)||0,fecha:document.getElementById('mov-fecha').value,metodo:document.getElementById('mov-metodo').value};
   if(!m.desc||!m.monto){alert('Completá la descripción y el monto.');return;}
   if(eid){const i=db.movimientos.findIndex(x=>x._id===eid);if(i>-1)db.movimientos[i]=m;}else{db.movimientos.push(m);}
   saveDB();
-  document.getElementById('mov-desc').value='';document.getElementById('mov-monto').value='';document.getElementById('mov-edit-id').value='';
+  document.getElementById('mov-desc').value='';document.getElementById('mov-monto').value='';document.getElementById('mov-edit-id').value='';document.getElementById('mov-metodo').value='';
   document.getElementById('modal-mov-title').textContent='Registrar movimiento';document.getElementById('mov-btn-eliminar').style.display='none';
   closeModal('modal-movimiento');renderFinanzas();renderInicio();
 }
@@ -535,7 +551,7 @@ function guardarMovimiento(){
 function editarMovimiento(id){
   const m=db.movimientos.find(x=>x._id===id);if(!m)return;
   popSelects();
-  document.getElementById('mov-tipo').value=m.tipo;document.getElementById('mov-desc').value=m.desc;document.getElementById('mov-paciente').value=m.pacienteIdx||'';document.getElementById('mov-monto').value=m.monto;document.getElementById('mov-fecha').value=m.fecha;document.getElementById('mov-edit-id').value=id;
+  document.getElementById('mov-tipo').value=m.tipo;document.getElementById('mov-desc').value=m.desc;document.getElementById('mov-paciente').value=m.pacienteIdx||'';document.getElementById('mov-monto').value=m.monto;document.getElementById('mov-fecha').value=m.fecha;document.getElementById('mov-metodo').value=m.metodo||'';document.getElementById('mov-edit-id').value=id;
   document.getElementById('modal-mov-title').textContent='Editar movimiento';document.getElementById('mov-btn-eliminar').style.display='block';
   openModal('modal-movimiento');
 }
@@ -569,11 +585,13 @@ function switchAgenda(el,id){
   if(id==='ag-dia')renderDia();if(id==='ag-semana')renderSemana();if(id==='ag-mes')renderCal();
 }
 
+function asistBadge(a){const map={asistio:'✅ Asistió',ausente:'❌ Ausente',cancelado:'🚫 Cancelado',pendiente:'⏳ Pendiente'};const col={asistio:'green',ausente:'red',cancelado:'amber',pendiente:'blue'};const v=a||'pendiente';return`<span class="badge badge-${col[v]}">${map[v]||'⏳ Pendiente'}</span>`;}
+
 function renderDia(){
   const ds=agDia.toISOString().split('T')[0];
   document.getElementById('dia-label-str').textContent=fmtL(ds);
   const ts=db.turnos.filter(t=>t.fecha===ds).sort((a,b)=>a.hora.localeCompare(b.hora));
-  document.getElementById('dia-list').innerHTML=ts.map(t=>{const p=pById(t.pacienteIdx);const c=pColor(t.pacienteIdx);return`<div class="turno-card" style="border-left-color:${avTx[c]};justify-content:space-between"><div style="display:flex;align-items:center;gap:12px;flex:1"><div class="t-time">${t.hora}</div><div><div class="t-name">${p?p.nombre:'Paciente'}</div><div class="t-sub">${t.modalidad} · ${t.duracion} min</div></div></div><button class="btn btn-sm" onclick="editarTurno('${t._id}')">✏️</button></div>`;}).join('')||'<div class="empty">Sin turnos este día</div>';
+  document.getElementById('dia-list').innerHTML=ts.map(t=>{const p=pById(t.pacienteIdx);const c=pColor(t.pacienteIdx);return`<div class="turno-card" style="border-left-color:${avTx[c]};justify-content:space-between"><div style="display:flex;align-items:center;gap:12px;flex:1"><div class="t-time">${t.hora}</div><div><div class="t-name">${p?p.nombre:'Paciente'}</div><div class="t-sub" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:3px">${t.modalidad} · ${t.duracion} min ${asistBadge(t.asistencia)}</div></div></div><button class="btn btn-sm" onclick="editarTurno('${t._id}')">✏️</button></div>`;}).join('')||'<div class="empty">Sin turnos este día</div>';
 }
 function changeDay(d){agDia.setDate(agDia.getDate()+d);renderDia();}
 
@@ -585,7 +603,7 @@ function renderSemana(){
     const ds=d.toISOString().split('T')[0];
     const ts=db.turnos.filter(t=>t.fecha===ds).sort((a,b)=>a.hora.localeCompare(b.hora));
     html+=`<div style="margin-bottom:14px"><div style="font-size:14px;font-weight:500;color:${ds===todayStr()?'var(--blue)':'var(--text2)'};margin-bottom:8px;text-transform:capitalize">${d.toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'short'})}${ds===todayStr()?' ✦':''}</div>`;
-    html+=ts.map(t=>{const p=pById(t.pacienteIdx);const c=pColor(t.pacienteIdx);return`<div class="turno-card" style="border-left-color:${avTx[c]};justify-content:space-between"><div style="display:flex;align-items:center;gap:12px;flex:1"><div class="t-time">${t.hora}</div><div><div class="t-name">${p?p.nombre:'Paciente'}</div><div class="t-sub">${t.modalidad}</div></div></div><button class="btn btn-sm" onclick="editarTurno('${t._id}')">✏️</button></div>`;}).join('')||'<div style="font-size:13px;color:var(--text3);padding:4px 0">Sin turnos</div>';
+    html+=ts.map(t=>{const p=pById(t.pacienteIdx);const c=pColor(t.pacienteIdx);return`<div class="turno-card" style="border-left-color:${avTx[c]};justify-content:space-between"><div style="display:flex;align-items:center;gap:12px;flex:1"><div class="t-time">${t.hora}</div><div><div class="t-name">${p?p.nombre:'Paciente'}</div><div class="t-sub" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:3px">${t.modalidad} ${asistBadge(t.asistencia)}</div></div></div><button class="btn btn-sm" onclick="editarTurno('${t._id}')">✏️</button></div>`;}).join('')||'<div style="font-size:13px;color:var(--text3);padding:4px 0">Sin turnos</div>';
     html+='</div>';
   });
   document.getElementById('semana-list').innerHTML=html;
@@ -601,7 +619,7 @@ function renderCal(){
   document.getElementById('cal-days').innerHTML=html;
   const mes=`${y}-${String(m+1).padStart(2,'0')}`;
   const mts=db.turnos.filter(t=>t.fecha&&t.fecha.startsWith(mes)).sort((a,b)=>a.fecha.localeCompare(b.fecha)||a.hora.localeCompare(b.hora));
-  document.getElementById('mes-turnos-list').innerHTML=mts.length?`<div class="card"><div class="card-label">Turnos del mes (${mts.length})</div>`+mts.map(t=>{const p=pById(t.pacienteIdx);return`<div class="fin-row"><span style="font-size:13px;color:var(--text2)">${fmtC(t.fecha)} ${t.hora}</span><span style="font-weight:500">${p?p.nombre:'?'}</span><div style="display:flex;align-items:center;gap:8px"><span class="badge badge-blue">${t.modalidad}</span><button class="btn btn-sm" onclick="editarTurno('${t._id}')">✏️</button></div></div>`;}).join('')+'</div>':'';
+  document.getElementById('mes-turnos-list').innerHTML=mts.length?`<div class="card"><div class="card-label">Turnos del mes (${mts.length})</div>`+mts.map(t=>{const p=pById(t.pacienteIdx);return`<div class="fin-row"><span style="font-size:13px;color:var(--text2)">${fmtC(t.fecha)} ${t.hora}</span><span style="font-weight:500">${p?p.nombre:'?'}</span><div style="display:flex;align-items:center;gap:6px">${asistBadge(t.asistencia)}<button class="btn btn-sm" onclick="editarTurno('${t._id}')">✏️</button></div></div>`;}).join('')+'</div>':'';
 }
 function selectDay(ds){agDia=new Date(ds+'T00:00:00');switchAgenda(document.querySelectorAll('.a-tab')[0],'ag-dia');}
 function changeMonth(d){calMonth.setMonth(calMonth.getMonth()+d);renderCal();}
@@ -621,7 +639,7 @@ function renderFinanzas(){
   const bal=ing-egr;
   document.getElementById('fin-metrics').innerHTML=`<div class="metric"><div class="metric-label">Ingresos del mes</div><div class="metric-value" style="color:var(--success);font-size:19px">$${ing.toLocaleString('es-AR')}</div></div><div class="metric"><div class="metric-label">Egresos del mes</div><div class="metric-value" style="color:var(--danger);font-size:19px">$${egr.toLocaleString('es-AR')}</div></div><div class="metric"><div class="metric-label">Balance mensual</div><div class="metric-value" style="font-size:19px;color:${bal>=0?'var(--success)':'var(--danger)'}">$${bal.toLocaleString('es-AR')}</div></div><div class="metric"><div class="metric-label">Total movimientos</div><div class="metric-value">${db.movimientos.length}</div></div>`;
   const sorted=[...db.movimientos].sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||''));
-  document.getElementById('lista-movimientos').innerHTML=sorted.map(m=>{const p=m.pacienteIdx?pById(m.pacienteIdx):null;return`<div class="fin-row"><div style="flex:1"><div style="font-size:14.5px;font-weight:500">${m.desc}</div><div style="font-size:12.5px;color:var(--text2)">${m.fecha?fmtC(m.fecha):''}${p?' · '+p.nombre:''}</div></div><div style="display:flex;align-items:center;gap:10px"><span class="${m.tipo==='ingreso'?'amount-pos':'amount-neg'}">${m.tipo==='ingreso'?'+':'-'}$${m.monto.toLocaleString('es-AR')}</span><button class="btn btn-sm" onclick="editarMovimiento('${m._id}')">✏️</button></div></div>`;}).join('')||'<div class="empty">Sin movimientos registrados</div>';
+  document.getElementById('lista-movimientos').innerHTML=sorted.map(m=>{const p=m.pacienteIdx?pById(m.pacienteIdx):null;return`<div class="fin-row"><div style="flex:1"><div style="font-size:14.5px;font-weight:500">${m.desc}</div><div style="font-size:12.5px;color:var(--text2);margin-top:2px">${m.fecha?fmtC(m.fecha):''}${p?' · '+p.nombre:''}${m.metodo?' · '+m.metodo:''}</div></div><div style="display:flex;align-items:center;gap:10px"><span class="${m.tipo==='ingreso'?'amount-pos':'amount-neg'}">${m.tipo==='ingreso'?'+':'-'}$${m.monto.toLocaleString('es-AR')}</span><button class="btn btn-sm" onclick="editarMovimiento('${m._id}')">✏️</button></div></div>`;}).join('')||'<div class="empty">Sin movimientos registrados</div>';
 }
 </script>
 </body>
